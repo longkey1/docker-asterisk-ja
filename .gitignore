@@ -1,0 +1,13 @@
+# Actual configuration files (keep only .example files in repo)
+sip.conf
+extensions.conf
+voicemail.conf
+docker-compose.yml
+msmtprc
+
+# Development documentation (not for public repo)
+CLAUDE.md
+
+# Vim swap files
+*.swp
+*.swo

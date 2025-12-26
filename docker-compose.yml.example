@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  asterisk:
+    image: ghcr.io/longkey1/asterisk-ja:latest
+    container_name: asterisk
+    ports:
+      - "5060:5060/udp"
+      - "10000-20000:10000-20000/udp"
+    environment:
+      # Language settings (default: ja)
+      - ASTERISK_LANGUAGE=ja
+      # - ASTERISK_LANGUAGE_PREFIX=yes
+      # - ASTERISK_TRANSMIT_SILENCE=yes
+    volumes:
+      - ./sip.conf:/etc/asterisk/sip.conf:ro
+      - ./extensions.conf:/etc/asterisk/extensions.conf:ro
+      - ./voicemail.conf:/etc/asterisk/voicemail.conf:ro
+      # msmtp config to relay to host SMTP server
+      - ./msmtprc:/etc/msmtprc:ro
+    extra_hosts:
+      # Allow container to access host's SMTP server (msmtp, postfix, etc.)
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
