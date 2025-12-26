@@ -102,7 +102,7 @@ RUN mkdir -p /usr/share/asterisk/sounds && \
 # Mount custom configs: -v ./sip.conf:/etc/asterisk/sip.conf:ro
 
 # Expose SIP and RTP ports
-EXPOSE 5060/udp 10000-10200/udp
+EXPOSE 5060/udp 10000-10100/udp
 
 # Add entrypoint script
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
