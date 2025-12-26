@@ -1,0 +1,35 @@
+name: update_readme
+
+on:
+  schedule:
+    # Run on the 1st day of every month at 00:00 JST (15:00 UTC previous day)
+    - cron: '0 15 1 * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update_readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Set timezone
+        run: echo "TZ=Asia/Tokyo" >> ${GITHUB_ENV}
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set updated date
+        run: echo "UPDATED=$(date --iso-8601=seconds)" >> ${GITHUB_ENV}
+
+      - name: Update README
+        run: envsubst '${UPDATED}' < README.md.dist > README.md
+
+      - name: Setup git
+        run: |
+          git config --global user.name "longkey1"
+          git config --global user.email "longkey1@users.noreply.github.com"
+
+      - name: Commit & Push
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update README by auto commit"

@@ -8,6 +8,9 @@ msmtprc
 # Development documentation (not for public repo)
 CLAUDE.md
 
+# README template (don't ignore - needed for auto-update)
+# README.md.dist
+
 # Vim swap files
 *.swp
 *.swo
