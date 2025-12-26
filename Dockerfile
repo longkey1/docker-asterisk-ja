@@ -83,10 +83,11 @@ RUN groupadd -r asterisk && \
     chown -R asterisk:asterisk /var/lib/asterisk /var/spool/asterisk /var/log/asterisk /var/run/asterisk /etc/asterisk
 
 # Download and install Japanese sound files
-RUN mkdir -p /var/lib/asterisk/sounds/ja && \
-    curl -fsSL http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-ja-gsm-current.tar.gz \
-    | tar -xz -C /var/lib/asterisk/sounds/ja && \
-    chown -R asterisk:asterisk /var/lib/asterisk/sounds/ja && \
+RUN mkdir -p /var/lib/asterisk/sounds/ja
+RUN curl -fsSL http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-ja-gsm-current.tar.gz \
+    | tar -xz -C /var/lib/asterisk/sounds/ja
+RUN chown -R asterisk:asterisk /var/lib/asterisk/sounds/ja
+RUN mkdir -p /usr/share/asterisk/sounds && \
     ln -s /var/lib/asterisk/sounds/ja /usr/share/asterisk/sounds/ja
 
 # Note: Configuration is done via environment variables at runtime.
