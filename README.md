@@ -61,7 +61,7 @@ docker run -d \
   -v $(pwd)/sip.conf:/etc/asterisk/sip.conf:ro \
   -v $(pwd)/extensions.conf:/etc/asterisk/extensions.conf:ro \
   -v $(pwd)/voicemail.conf:/etc/asterisk/voicemail.conf:ro \
-  asterisk-ja
+  ghcr.io/longkey1/asterisk-ja:latest
 ```
 
 ### 4. Access Asterisk CLI
