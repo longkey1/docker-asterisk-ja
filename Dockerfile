@@ -19,6 +19,9 @@ FROM base AS build
 # Asterisk version (passed from build-args, see VERSION file)
 ARG ASTERISK_VERSION
 
+# Sound file format (wav, gsm, ulaw, alaw, g722, sln16)
+ARG SOUND_FORMAT=wav
+
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -62,6 +65,9 @@ RUN tar -czf /tmp/asterisk-libs.tar.gz \
 
 FROM base AS final
 
+# Sound file format argument for final stage
+ARG SOUND_FORMAT=wav
+
 # Copy compiled Asterisk from build stage
 COPY --from=build /usr/lib/asterisk /usr/lib/asterisk
 COPY --from=build /usr/sbin/asterisk /usr/sbin/asterisk
@@ -84,7 +90,7 @@ RUN groupadd -r asterisk && \
 
 # Download and install Japanese sound files
 RUN mkdir -p /var/lib/asterisk/sounds/ja
-RUN curl -fsSL http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-ja-gsm-current.tar.gz \
+RUN curl -fsSL http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-ja-${SOUND_FORMAT}-current.tar.gz \
     | tar -xz -C /var/lib/asterisk/sounds/ja
 RUN chown -R asterisk:asterisk /var/lib/asterisk/sounds/ja
 RUN mkdir -p /usr/share/asterisk/sounds && \

@@ -23,8 +23,11 @@ Docker container for Asterisk PBX with Japanese language support.
 # Option A: Pull from GitHub Container Registry
 docker pull ghcr.io/longkey1/asterisk-ja:latest
 
-# Option B: Build locally
+# Option B: Build locally (default: WAV format)
 docker build -t asterisk-ja .
+
+# Option C: Build with custom sound format (gsm, ulaw, alaw, g722, sln16)
+docker build --build-arg SOUND_FORMAT=gsm -t asterisk-ja .
 ```
 
 ### 2. Extract default configuration files
@@ -118,7 +121,9 @@ The container applies the following default settings at startup (if not already 
 
 - **Asterisk Version**: Built from official source (see VERSION file)
 - **Language**: Japanese (ja) - configurable via `ASTERISK_LANGUAGE` environment variable
-- **Sound Files**: Japanese language prompts pre-installed
+- **Sound Files**: Japanese language prompts pre-installed (WAV format by default)
+  - Available formats: wav, gsm, ulaw, alaw, g722, sln16
+  - Format can be selected at build time with `--build-arg SOUND_FORMAT=<format>`
 - **Base Image**: Debian Trixie
 
 All other Asterisk settings remain at their installation defaults. Customize by mounting your own configuration files.

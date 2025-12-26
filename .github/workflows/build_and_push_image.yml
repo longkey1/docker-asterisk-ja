@@ -59,3 +59,4 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             ASTERISK_VERSION=${{ steps.asterisk_version.outputs.version }}
+            SOUND_FORMAT=wav
