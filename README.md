@@ -3,6 +3,7 @@
 Docker container for Asterisk PBX with Japanese language support.
 
 **Asterisk Version**: 22.7.0
+**Last updated**: 2025-12-26T14:50:41+09:00
 
 ## Features
 
@@ -159,7 +160,3 @@ docker logs -f asterisk
 ## License
 
 This project configuration is based on the Ansible role from [elephant](https://github.com/longkey1/elephant).
-
----
-
-Last updated: 2025-12-26T14:50:41+09:00
