@@ -22,26 +22,38 @@ ARG ASTERISK_VERSION
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    dnsutils \
     libedit-dev \
-    libjansson-dev \
     libsqlite3-dev \
     libssl-dev \
     libxml2-dev \
+    net-tools \
+    pkg-config \
+    sqlite3 \
     uuid-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and build Asterisk
+# Download Asterisk
 WORKDIR /tmp
 RUN curl -fsSL https://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-${ASTERISK_VERSION}.tar.gz \
-    -o asterisk.tar.gz && \
-    tar -xzf asterisk.tar.gz && \
-    cd asterisk-${ASTERISK_VERSION} && \
-    ./configure --with-jansson-bundled && \
-    make -j$(nproc) && \
-    make install && \
-    make samples && \
-    cd / && \
-    rm -rf /tmp/asterisk-${ASTERISK_VERSION} /tmp/asterisk.tar.gz
+    -o asterisk.tar.gz
+
+# Extract Asterisk
+RUN tar -xzf asterisk.tar.gz
+
+# Configure Asterisk
+WORKDIR /tmp/asterisk-${ASTERISK_VERSION}
+RUN ./configure --with-jansson-bundled
+
+# Build Asterisk
+RUN make -j$(nproc)
+
+# Install Asterisk
+RUN make install && make samples
+
+# Cleanup
+WORKDIR /
+RUN rm -rf /tmp/asterisk-${ASTERISK_VERSION} /tmp/asterisk.tar.gz
 
 # Archive libraries for final stage
 RUN tar -czf /tmp/asterisk-libs.tar.gz \
