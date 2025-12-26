@@ -21,8 +21,11 @@ jobs:
       - name: Set updated date
         run: echo "UPDATED=$(date --iso-8601=seconds)" >> ${GITHUB_ENV}
 
+      - name: Read Asterisk version
+        run: echo "ASTERISK_VERSION=$(cat VERSION)" >> ${GITHUB_ENV}
+
       - name: Update README
-        run: envsubst '${UPDATED}' < README.md.dist > README.md
+        run: envsubst '${UPDATED} ${ASTERISK_VERSION}' < README.md.dist > README.md
 
       - name: Setup git
         run: |

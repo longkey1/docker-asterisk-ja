@@ -1,22 +1,80 @@
-FROM debian:trixie-slim
+FROM debian:trixie-slim AS base
 
-# Install Asterisk and required packages
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    asterisk \
     ca-certificates \
     curl \
+    libedit2 \
+    libjansson4 \
+    libsqlite3-0 \
+    libssl3 \
+    libxml2 \
     msmtp \
     msmtp-mta \
+    uuid-runtime \
     && rm -rf /var/lib/apt/lists/*
 
-# Create asterisk directories
-RUN mkdir -p /var/lib/asterisk/sounds/ja
+FROM base AS build
 
-# Download and extract Japanese sound files
-RUN curl -L http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-ja-gsm-current.tar.gz \
-    | tar -xz -C /var/lib/asterisk/sounds/ja \
-    && chown -R asterisk:asterisk /var/lib/asterisk/sounds/ja \
-    && ln -s /var/lib/asterisk/sounds/ja /usr/share/asterisk/sounds/ja
+# Asterisk version (passed from build-args, see VERSION file)
+ARG ASTERISK_VERSION
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libedit-dev \
+    libjansson-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    libxml2-dev \
+    uuid-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and build Asterisk
+WORKDIR /tmp
+RUN curl -fsSL https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-${ASTERISK_VERSION}.tar.gz \
+    | tar -xz && \
+    cd asterisk-${ASTERISK_VERSION} && \
+    ./configure --with-jansson-bundled && \
+    make -j$(nproc) && \
+    make install && \
+    make samples && \
+    cd / && \
+    rm -rf /tmp/asterisk-${ASTERISK_VERSION}
+
+# Archive libraries for final stage
+RUN tar -czf /tmp/asterisk-libs.tar.gz \
+    /usr/lib/libasterisk* \
+    /usr/lib/x86_64-linux-gnu/libasterisk* || true
+
+FROM base AS final
+
+# Copy compiled Asterisk from build stage
+COPY --from=build /usr/lib/asterisk /usr/lib/asterisk
+COPY --from=build /usr/sbin/asterisk /usr/sbin/asterisk
+COPY --from=build /usr/sbin/astdb2sqlite3 /usr/sbin/astdb2sqlite3
+COPY --from=build /usr/sbin/safe_asterisk /usr/sbin/safe_asterisk
+COPY --from=build /var/lib/asterisk /var/lib/asterisk
+COPY --from=build /var/spool/asterisk /var/spool/asterisk
+COPY --from=build /var/log/asterisk /var/log/asterisk
+COPY --from=build /var/run/asterisk /var/run/asterisk
+COPY --from=build /etc/asterisk /etc/asterisk
+COPY --from=build /tmp/asterisk-libs.tar.gz /tmp/asterisk-libs.tar.gz
+
+# Extract libraries
+RUN tar -xzf /tmp/asterisk-libs.tar.gz -C / && rm /tmp/asterisk-libs.tar.gz
+
+# Create asterisk user and group
+RUN groupadd -r asterisk && \
+    useradd -r -g asterisk -d /var/lib/asterisk -s /bin/false asterisk && \
+    chown -R asterisk:asterisk /var/lib/asterisk /var/spool/asterisk /var/log/asterisk /var/run/asterisk /etc/asterisk
+
+# Download and install Japanese sound files
+RUN mkdir -p /var/lib/asterisk/sounds/ja && \
+    curl -fsSL http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-ja-gsm-current.tar.gz \
+    | tar -xz -C /var/lib/asterisk/sounds/ja && \
+    chown -R asterisk:asterisk /var/lib/asterisk/sounds/ja && \
+    ln -s /var/lib/asterisk/sounds/ja /usr/share/asterisk/sounds/ja
 
 # Note: Configuration is done via environment variables at runtime.
 # Default configuration files are included from the Asterisk package.
@@ -24,7 +82,7 @@ RUN curl -L http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sou
 # Mount custom configs: -v ./sip.conf:/etc/asterisk/sip.conf:ro
 
 # Expose SIP and RTP ports
-EXPOSE 5060/udp 10000-20000/udp
+EXPOSE 5060/udp 10000-10200/udp
 
 # Add entrypoint script
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

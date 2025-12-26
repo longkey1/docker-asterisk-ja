@@ -2,14 +2,18 @@
 
 Docker container for Asterisk PBX with Japanese language support.
 
+**Asterisk Version**: ${ASTERISK_VERSION}
+
 ## Features
 
-- Based on Debian stable
+- Asterisk built from source (latest stable version)
+- Based on Debian Trixie
 - Japanese language sound files pre-installed
 - Configurable language settings via environment variables
 - Health check support
 - Multi-architecture support (amd64, arm64)
 - SMTP relay support via msmtp
+- Multi-stage build for minimal image size
 
 ## Quick Start
 
@@ -48,7 +52,7 @@ Edit these files with your SIP provider credentials and dialplan configuration.
 docker run -d \
   --name asterisk \
   -p 5060:5060/udp \
-  -p 10000-20000:10000-20000/udp \
+  -p 10000-10200:10000-10200/udp \
   -e ASTERISK_LANGUAGE=ja \
   -v $(pwd)/sip.conf:/etc/asterisk/sip.conf:ro \
   -v $(pwd)/extensions.conf:/etc/asterisk/extensions.conf:ro \
@@ -95,7 +99,7 @@ Key configuration files:
 ### Port Mapping
 
 - `5060/udp` - SIP signaling port
-- `10000-20000/udp` - RTP media ports (adjust range as needed)
+- `10000-10200/udp` - RTP media ports (201 ports, suitable for ~50 concurrent calls)
 
 ## Docker Compose
 
@@ -112,11 +116,20 @@ See `docker-compose.yml.example` for the configuration template.
 
 The container applies the following default settings at startup (if not already configured):
 
+- **Asterisk Version**: Built from official source (see VERSION file)
 - **Language**: Japanese (ja) - configurable via `ASTERISK_LANGUAGE` environment variable
 - **Sound Files**: Japanese language prompts pre-installed
-- **Base Image**: Debian stable with Asterisk from official packages
+- **Base Image**: Debian Trixie
 
-All other Asterisk settings remain at their package defaults. Customize by mounting your own configuration files.
+All other Asterisk settings remain at their installation defaults. Customize by mounting your own configuration files.
+
+## Image Tags
+
+Images are tagged with Asterisk versions:
+- `latest` - Latest Asterisk version
+- `22.7.0` - Specific Asterisk version
+- `22.7.0-20251226` - Version with build date
+- `sha-xxxxxxx` - Git commit SHA
 
 ## Health Check
 

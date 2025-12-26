@@ -16,12 +16,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Extract Debian version from Dockerfile
-        id: debian_version
+      - name: Read Asterisk version
+        id: asterisk_version
         run: |
-          DEBIAN_VERSION=$(grep '^FROM debian:' Dockerfile | sed 's/FROM debian:\([^-]*\).*/\1/')
-          echo "version=$DEBIAN_VERSION" >> $GITHUB_OUTPUT
-          echo "Detected Debian version: $DEBIAN_VERSION"
+          ASTERISK_VERSION=$(cat VERSION)
+          echo "version=$ASTERISK_VERSION" >> $GITHUB_OUTPUT
+          echo "Asterisk version: $ASTERISK_VERSION"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -43,8 +43,8 @@ jobs:
           images: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ steps.debian_version.outputs.version }}
-            type=raw,value=${{ steps.debian_version.outputs.version }}-{{date 'YYYYMMDD'}}
+            type=raw,value=${{ steps.asterisk_version.outputs.version }}
+            type=raw,value=${{ steps.asterisk_version.outputs.version }}-{{date 'YYYYMMDD'}}
             type=sha,prefix=sha-
 
       - name: Build and push
@@ -57,3 +57,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            ASTERISK_VERSION=${{ steps.asterisk_version.outputs.version }}
