@@ -4,11 +4,12 @@ Docker container for Asterisk PBX with Japanese language support.
 
 ## Features
 
-- Based on Debian Bookworm
+- Based on Debian stable
 - Japanese language sound files pre-installed
-- Minimal footprint with unnecessary modules disabled
+- Configurable language settings via environment variables
 - Health check support
 - Multi-architecture support (amd64, arm64)
+- SMTP relay support via msmtp
 
 ## Quick Start
 
@@ -48,6 +49,7 @@ docker run -d \
   --name asterisk \
   -p 5060:5060/udp \
   -p 10000-20000:10000-20000/udp \
+  -e ASTERISK_LANGUAGE=ja \
   -v $(pwd)/sip.conf:/etc/asterisk/sip.conf:ro \
   -v $(pwd)/extensions.conf:/etc/asterisk/extensions.conf:ro \
   -v $(pwd)/voicemail.conf:/etc/asterisk/voicemail.conf:ro \
@@ -62,6 +64,20 @@ docker exec -it asterisk asterisk -r
 
 ## Configuration
 
+### Environment Variables
+
+The container supports the following environment variables:
+
+- `ASTERISK_LANGUAGE` - Default language (default: `ja`)
+  - Available: `en`, `es`, `fr`, `de`, `it`, `ja`, etc.
+- `ASTERISK_LANGUAGE_PREFIX` - Enable language prefix (default: `yes`)
+- `ASTERISK_TRANSMIT_SILENCE` - Transmit silence (default: `yes`)
+
+Example:
+```bash
+docker run -e ASTERISK_LANGUAGE=en -e ASTERISK_LANGUAGE_PREFIX=no ...
+```
+
 ### Configuration Files
 
 The image includes default Asterisk configuration files. You can customize them by:
@@ -74,6 +90,7 @@ Key configuration files:
 - **sip.conf** - SIP configuration
 - **extensions.conf** - Dialplan configuration
 - **voicemail.conf** - Voicemail users (optional)
+- **msmtprc** - SMTP relay configuration (optional)
 
 ### Port Mapping
 
@@ -91,14 +108,15 @@ docker-compose up -d
 
 See `docker-compose.yml.example` for the configuration template.
 
-## Pre-configured Settings
+## Default Settings
 
-The image comes with the following pre-configured settings:
+The container applies the following default settings at startup (if not already configured):
 
-- **Language**: Japanese (ja)
-- **Codecs**: ulaw, gsm
-- **Voicemail**: WAV format, auto-delete enabled
-- **Modules**: Unnecessary modules disabled for security and performance
+- **Language**: Japanese (ja) - configurable via `ASTERISK_LANGUAGE` environment variable
+- **Sound Files**: Japanese language prompts pre-installed
+- **Base Image**: Debian stable with Asterisk from official packages
+
+All other Asterisk settings remain at their package defaults. Customize by mounting your own configuration files.
 
 ## Health Check
 
@@ -126,4 +144,4 @@ This project configuration is based on the Ansible role from [elephant](https://
 
 ---
 
-Last updated: 2025-12-26T13:51:36+09:00
+Last updated: 2025-12-26T13:56:27+09:00
