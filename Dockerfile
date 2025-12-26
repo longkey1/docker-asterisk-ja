@@ -32,15 +32,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Download and build Asterisk
 WORKDIR /tmp
-RUN curl -fsSL https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-${ASTERISK_VERSION}.tar.gz \
-    | tar -xz && \
+RUN curl -fsSL https://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-${ASTERISK_VERSION}.tar.gz \
+    -o asterisk.tar.gz && \
+    tar -xzf asterisk.tar.gz && \
     cd asterisk-${ASTERISK_VERSION} && \
     ./configure --with-jansson-bundled && \
     make -j$(nproc) && \
     make install && \
     make samples && \
     cd / && \
-    rm -rf /tmp/asterisk-${ASTERISK_VERSION}
+    rm -rf /tmp/asterisk-${ASTERISK_VERSION} /tmp/asterisk.tar.gz
 
 # Archive libraries for final stage
 RUN tar -czf /tmp/asterisk-libs.tar.gz \
