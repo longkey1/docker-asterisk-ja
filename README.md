@@ -2,8 +2,8 @@
 
 Docker container for Asterisk PBX with Japanese language support.
 
-- **Asterisk Version**: 22.7.0
-- **Last updated**: 2025-12-26T14:50:41+09:00
+**Asterisk Version**: 22.7.0
+**Last updated**: 2026-01-02T00:15:23+09:00
 
 ## Features
 
@@ -61,7 +61,7 @@ docker run -d \
   -v $(pwd)/sip.conf:/etc/asterisk/sip.conf:ro \
   -v $(pwd)/extensions.conf:/etc/asterisk/extensions.conf:ro \
   -v $(pwd)/voicemail.conf:/etc/asterisk/voicemail.conf:ro \
-  ghcr.io/longkey1/asterisk-ja:latest
+  asterisk-ja
 ```
 
 ### 4. Access Asterisk CLI
