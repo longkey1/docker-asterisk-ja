@@ -46,7 +46,7 @@ RUN tar -xzf asterisk.tar.gz
 
 # Configure Asterisk
 WORKDIR /tmp/asterisk-${ASTERISK_VERSION}
-RUN ./configure --with-jansson-bundled
+RUN ./configure --with-jansson-bundled --disable-native-arch
 
 # Build Asterisk
 RUN make -j$(nproc)
