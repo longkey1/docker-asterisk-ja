@@ -25,6 +25,7 @@ ARG SOUND_FORMAT=wav
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    ccache \
     dnsutils \
     libedit-dev \
     libsqlite3-dev \
@@ -36,6 +37,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     uuid-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Setup ccache
+ENV PATH="/usr/lib/ccache:${PATH}"
+ENV CCACHE_DIR="/root/.ccache"
+
 # Download Asterisk
 WORKDIR /tmp
 RUN curl -fsSL https://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-${ASTERISK_VERSION}.tar.gz \
@@ -46,7 +51,11 @@ RUN tar -xzf asterisk.tar.gz
 
 # Configure Asterisk
 WORKDIR /tmp/asterisk-${ASTERISK_VERSION}
-RUN ./configure --with-jansson-bundled --disable-native-arch
+RUN ./configure --with-jansson-bundled
+
+# Disable BUILD_NATIVE to avoid illegal instructions on different CPUs
+RUN make menuselect.makeopts && \
+    menuselect/menuselect --disable BUILD_NATIVE menuselect.makeopts
 
 # Build Asterisk
 RUN make -j$(nproc)
