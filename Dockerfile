@@ -61,7 +61,7 @@ RUN rm -rf /tmp/asterisk-${ASTERISK_VERSION} /tmp/asterisk.tar.gz
 # Archive libraries for final stage
 RUN tar -czf /tmp/asterisk-libs.tar.gz \
     /usr/lib/libasterisk* \
-    /usr/lib/x86_64-linux-gnu/libasterisk* || true
+    /usr/lib/*/libasterisk* 2>/dev/null || tar -czf /tmp/asterisk-libs.tar.gz /usr/lib/libasterisk* 2>/dev/null || true
 
 FROM base AS final
 
