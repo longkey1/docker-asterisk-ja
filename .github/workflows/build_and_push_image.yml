@@ -81,6 +81,9 @@ jobs:
     env:
       IMAGE_NAME: asterisk-ja
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
@@ -103,6 +106,7 @@ jobs:
         run: |
           ASTERISK_VERSION=$(cat VERSION)
           echo "version=$ASTERISK_VERSION" >> $GITHUB_OUTPUT
+          echo "Asterisk version: $ASTERISK_VERSION"
 
       - name: Docker meta
         id: meta
