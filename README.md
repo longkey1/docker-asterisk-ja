@@ -3,7 +3,7 @@
 Docker container for Asterisk PBX with Japanese language support.
 
 **Asterisk Version**: 22.7.0
-**Last updated**: 2026-04-02T01:02:59+09:00
+**Last updated**: 2026-05-02T00:50:23+09:00
 
 ## Features
 
